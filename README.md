@@ -11,6 +11,7 @@ The purpose is to show how serverless orchestration with integration patterns co
   * [Publish Subscribe](#publish-subscribe)
 - [Usage](#usage)
   * [Bootstrap your environment](#bootstrap-your-environment)
+  * [Install dependencies](#install-dependencies)
   * [Initial deployment](#initial-deployment)
   * [Pre-populate LoanBrokerBanksTable for RecipientsList stack](#pre-populate-loanbrokerbankstable-for-recipientslist-stack)
   * [Execute loan broker request](#execute-loan-broker-request)
@@ -53,6 +54,11 @@ cdk bootstrap aws://ACCOUNT-NUMBER/REGION       # e.g. cdk bootstrap aws://12345
 ```
 
 For more details, see [AWS Cloud Development Kit](https://docs.aws.amazon.com/cdk/latest/guide/bootstrapping.html).
+
+### Install dependencies
+```
+npm install
+```
 
 ### Initial deployment
 ```

@@ -1,3 +1,4 @@
+import * as path from "path";
 import * as cdk from "@aws-cdk/core";
 import * as dynamodb from "@aws-cdk/aws-dynamodb";
 import * as lambda from "@aws-cdk/aws-lambda";
@@ -11,6 +12,7 @@ import * as sqs from "@aws-cdk/aws-sqs";
 import { Duration } from "@aws-cdk/core";
 import { SnsEventSource, SqsEventSource } from "@aws-cdk/aws-lambda-event-sources";
 import { EventBus, Rule, RuleTargetInput, EventPattern } from "@aws-cdk/aws-events";
+import { NodejsFunction } from "@aws-cdk/aws-lambda-nodejs";
 import { IQueue } from "@aws-cdk/aws-sqs";
 
 
@@ -145,10 +147,10 @@ export class LoanBrokerPubSubStack extends cdk.Stack {
         });
 
         // Set up quote aggregator lambda
-        const quoteAggregatorLambda = new lambda.Function(this, "QuoteAggregatorLambda", {
+        const quoteAggregatorLambda = new NodejsFunction(this, "QuoteAggregatorLambda", {
             runtime: lambda.Runtime.NODEJS_14_X,
-            handler: "app.handler",
-            code: lambda.Code.fromAsset("quote-aggregator"),
+            handler: "handler",
+            entry: path.join(__dirname, "../quote-aggregator/app.js"),
             functionName: "QuoteAggregator",
             environment: {
                 MORTGAGE_QUOTES_TABLE: mortgageQuotesTable.tableName,
@@ -178,10 +180,10 @@ export class LoanBrokerPubSubStack extends cdk.Stack {
             timeout: cdk.Duration.seconds(5),
         });
 
-        const getMortgageQuotesLambda = new lambda.Function(this, "GetMortgageQuotesLambda", {
+        const getMortgageQuotesLambda = new NodejsFunction(this, "GetMortgageQuotesLambda", {
             runtime: lambda.Runtime.NODEJS_14_X,
-            handler: "app.handler",
-            code: lambda.Code.fromAsset("quote-requester"),
+            handler: "handler",
+            entry: path.join(__dirname, "../quote-requester/app.js"),
             functionName: "QuoteRequester",
             environment: {
                 MORTGAGE_QUOTES_TABLE: mortgageQuotesTable.tableName,
