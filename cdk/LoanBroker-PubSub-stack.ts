@@ -1,19 +1,20 @@
 import * as path from "path";
-import * as cdk from "@aws-cdk/core";
-import * as dynamodb from "@aws-cdk/aws-dynamodb";
-import * as lambda from "@aws-cdk/aws-lambda";
-import * as targets from "@aws-cdk/aws-events-targets";
-import * as destinations from "@aws-cdk/aws-lambda-destinations";
-import * as sfn from "@aws-cdk/aws-stepfunctions";
-import * as tasks from "@aws-cdk/aws-stepfunctions-tasks";
-import * as logs from "@aws-cdk/aws-logs";
-import * as sns from "@aws-cdk/aws-sns";
-import * as sqs from "@aws-cdk/aws-sqs";
-import { Duration } from "@aws-cdk/core";
-import { SnsEventSource, SqsEventSource } from "@aws-cdk/aws-lambda-event-sources";
-import { EventBus, Rule, RuleTargetInput, EventPattern } from "@aws-cdk/aws-events";
-import { NodejsFunction } from "@aws-cdk/aws-lambda-nodejs";
-import { IQueue } from "@aws-cdk/aws-sqs";
+
+import { CfnOutput, Duration, RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
+import { Construct } from "constructs";
+import { SnsEventSource, SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
+import { EventBus, Rule, RuleTargetInput, EventPattern } from "aws-cdk-lib/aws-events";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { IQueue } from "aws-cdk-lib/aws-sqs";
+import * as destinations from "aws-cdk-lib/aws-lambda-destinations";
+import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as logs from "aws-cdk-lib/aws-logs";
+import * as sfn from "aws-cdk-lib/aws-stepfunctions";
+import * as sns from "aws-cdk-lib/aws-sns";
+import * as sqs from "aws-cdk-lib/aws-sqs";
+import * as targets from "aws-cdk-lib/aws-events-targets";
+import * as tasks from "aws-cdk-lib/aws-stepfunctions-tasks";
 
 
 /**
@@ -40,8 +41,8 @@ interface BankFunctionEnvironment extends environment {
  * CDK Stack implementation of the Loan broker pub sub,
  * see https://www.enterpriseintegrationpatterns.com/ramblings/loanbroker_stepfunctions_pubsub.html
  */
-export class LoanBrokerPubSubStack extends cdk.Stack {
-    constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+export class LoanBrokerPubSubStack extends Stack {
+    constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
 
 
@@ -74,9 +75,9 @@ export class LoanBrokerPubSubStack extends cdk.Stack {
         });
 
         const mortgageQuotesQueue = new sqs.Queue(this, "MortgageQuotesQueue", {
-            retentionPeriod: cdk.Duration.minutes(5),
+            retentionPeriod: Duration.minutes(5),
 
-            removalPolicy: cdk.RemovalPolicy.DESTROY, // This is just for development purposes
+            removalPolicy: RemovalPolicy.DESTROY, // This is just for development purposes
         });
 
         // Setup message and content filter for mortgage quotes
@@ -143,7 +144,7 @@ export class LoanBrokerPubSubStack extends cdk.Stack {
             billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
             tableName: "MortgageQuotesTable",
 
-            removalPolicy: cdk.RemovalPolicy.DESTROY, // This is just for development purposes
+            removalPolicy: RemovalPolicy.DESTROY, // This is just for development purposes
         });
 
         // Set up quote aggregator lambda
@@ -177,7 +178,7 @@ export class LoanBrokerPubSubStack extends cdk.Stack {
             resultPath: "$.Quotes",
             integrationPattern: sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
 
-            timeout: cdk.Duration.seconds(5),
+            timeout: Duration.seconds(5),
         });
 
         const getMortgageQuotesLambda = new NodejsFunction(this, "GetMortgageQuotesLambda", {
@@ -246,7 +247,7 @@ export class LoanBrokerPubSubStack extends cdk.Stack {
         mortgageQuoteRequestTopic.grantPublish(loanBroker);
         loanBroker.grantTaskResponse(quoteAggregatorLambda);
 
-        new cdk.CfnOutput(this, "LoanBrokerArn", {
+        new CfnOutput(this, "LoanBrokerArn", {
             value: loanBroker.stateMachineArn,
         });
     }
@@ -281,16 +282,16 @@ interface ContentFilterProps {
     readonly jsonPath: string;
 }
 
-class ContentFilter extends cdk.Construct {
+class ContentFilter extends Construct {
     public readonly ruleTargetInput: RuleTargetInput;
 
-    constructor(scope: cdk.Construct, id: string, props: ContentFilterProps) {
+    constructor(scope: Construct, id: string, props: ContentFilterProps) {
         super(scope, id);
 
         this.ruleTargetInput = RuleTargetInput.fromEventPath(props.jsonPath);
     }
 
-    static createPayloadFilter(scope: cdk.Construct, id: string): ContentFilter {
+    static createPayloadFilter(scope: Construct, id: string): ContentFilter {
         return new ContentFilter(scope, id, {
             jsonPath: "$.detail.responsePayload",
         });
@@ -304,16 +305,16 @@ interface MessageFilterDetailProps {
     [key: string]: any;
 }
 
-class MessageFilter extends cdk.Construct {
+class MessageFilter extends Construct {
     public readonly eventPattern: EventPattern;
 
-    constructor(scope: cdk.Construct, id: string, props: MessageFilterProps) {
+    constructor(scope: Construct, id: string, props: MessageFilterProps) {
         super(scope, id);
 
         this.eventPattern = props;
     }
 
-    static fromDetail(scope: cdk.Construct, id: string, detailProps: MessageFilterDetailProps): MessageFilter {
+    static fromDetail(scope: Construct, id: string, detailProps: MessageFilterDetailProps): MessageFilter {
         return new MessageFilter(scope, id, {
             detail: detailProps,
         });
@@ -328,8 +329,8 @@ interface MessageContentFilterProps {
     contentFilter: ContentFilter;
 }
 
-class MessageContentFilter extends cdk.Construct {
-    constructor(scope: cdk.Construct, id: string, props: MessageContentFilterProps) {
+class MessageContentFilter extends Construct {
+    constructor(scope: Construct, id: string, props: MessageContentFilterProps) {
         super(scope, id);
 
         const messageFilterRule = new Rule(scope, id + "Rule", {

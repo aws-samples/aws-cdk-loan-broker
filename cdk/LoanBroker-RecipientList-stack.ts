@@ -1,10 +1,10 @@
-import * as cdk from "@aws-cdk/core";
-import * as lambda from "@aws-cdk/aws-lambda";
-import * as sfn from "@aws-cdk/aws-stepfunctions";
-import * as tasks from "@aws-cdk/aws-stepfunctions-tasks";
-import * as logs from "@aws-cdk/aws-logs";
-import * as dynamodb from "@aws-cdk/aws-dynamodb";
-import { Duration } from "@aws-cdk/core";
+import { CfnOutput, Duration, RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
+import { Construct } from "constructs";
+import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as logs from "aws-cdk-lib/aws-logs";
+import * as sfn from "aws-cdk-lib/aws-stepfunctions";
+import * as tasks from "aws-cdk-lib/aws-stepfunctions-tasks";
 
 
 /**
@@ -31,8 +31,8 @@ interface BankFunctionEnvironment extends environment {
  * CDK Stack implementation of the Loan broker recipient list,
  * see https://www.enterpriseintegrationpatterns.com/ramblings/loanbroker_stepfunctions_recipient_list.html
  */
-export class LoanBrokerRecipientListStack extends cdk.Stack {
-    constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+export class LoanBrokerRecipientListStack extends Stack {
+    constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
 
 
@@ -65,7 +65,7 @@ export class LoanBrokerRecipientListStack extends cdk.Stack {
             billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
             tableName: "LoanBrokerBanksTable",
 
-            removalPolicy: cdk.RemovalPolicy.DESTROY, // This is just for development purposes
+            removalPolicy: RemovalPolicy.DESTROY, // This is just for development purposes
         });
 
         // Setup fetch bank addresses from database task
@@ -158,7 +158,7 @@ export class LoanBrokerRecipientListStack extends cdk.Stack {
             bank.grantInvoke(loanBroker)
         );
 
-        new cdk.CfnOutput(this, "LoanBrokerArn", {
+        new CfnOutput(this, "LoanBrokerArn", {
             value: loanBroker.stateMachineArn,
         });
     }

@@ -19,24 +19,11 @@
     "cdk": "cdk"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "1.134.0",
-    "@aws-cdk/aws-dynamodb": "1.134.0",
-    "@aws-cdk/aws-events": "1.134.0",
-    "@aws-cdk/aws-events-targets": "1.134.0",
-    "@aws-cdk/aws-lambda": "1.134.0",
-    "@aws-cdk/aws-lambda-destinations": "1.134.0",
-    "@aws-cdk/aws-lambda-event-sources": "1.134.0",
-    "@aws-cdk/aws-lambda-nodejs": "1.134.0",
-    "@aws-cdk/aws-logs": "1.134.0",
-    "@aws-cdk/aws-sns": "1.134.0",
-    "@aws-cdk/aws-sqs": "1.134.0",
-    "@aws-cdk/aws-stepfunctions": "1.134.0",
-    "@aws-cdk/aws-stepfunctions-tasks": "1.134.0",
     "@types/jest": "^26.0.10",
     "@types/node": "10.17.27",
-    "aws-cdk": "1.134.0",
     "jest": "^26.4.2",
     "ts-jest": "^26.2.0",
+    "aws-cdk": "2.3.0",
     "ts-node": "^9.0.0",
     "typescript": "~3.9.7",
 
@@ -45,7 +32,8 @@
     "@aws-sdk/util-dynamodb": "^3.31.0"
   },
   "dependencies": {
-    "@aws-cdk/core": "1.134.0",
+    "aws-cdk-lib": "2.3.0",
+    "constructs": "^10.0.0",
     "source-map-support": "^0.5.16"
   }
 }
