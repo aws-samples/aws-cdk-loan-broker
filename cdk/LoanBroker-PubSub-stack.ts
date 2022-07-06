@@ -81,9 +81,7 @@ export class LoanBrokerPubSubStack extends Stack {
         });
 
         // Setup message and content filter for mortgage quotes
-        var nonEmptyQuoteMessageFilter = MessageFilter.fromDetail(this, "nonEmptyQuoteMessageFilter", {
-            responsePayload: { bankId: [{ exists: true }] },
-        });
+        var nonEmptyQuoteMessageFilter = MessageFilter.fieldExists(this, "nonEmptyQuoteMessageFilter", "bankId");
         var payloadContentFilter = ContentFilter.createPayloadFilter(this, "PayloadContentFilter");
 
         new MessageContentFilter(this, "FilterMortgageQuotes", {
@@ -192,6 +190,7 @@ export class LoanBrokerPubSubStack extends Stack {
         });
         mortgageQuotesTable.grantReadData(getMortgageQuotesLambda);
 
+        // TODO: Replace with DynamoDB Get Item call
         // Setup get mortgage quotes task
         const getMortgageQuotes = new tasks.LambdaInvoke(this, "Get Mortgage Quotes", {
             lambdaFunction: getMortgageQuotesLambda,
@@ -301,10 +300,6 @@ class ContentFilter extends Construct {
 
 interface MessageFilterProps extends EventPattern {}
 
-interface MessageFilterDetailProps {
-    [key: string]: any;
-}
-
 class MessageFilter extends Construct {
     public readonly eventPattern: EventPattern;
 
@@ -314,10 +309,12 @@ class MessageFilter extends Construct {
         this.eventPattern = props;
     }
 
-    static fromDetail(scope: Construct, id: string, detailProps: MessageFilterDetailProps): MessageFilter {
+    static fieldExists(scope: Construct, id: string, fieldToCheck: string): MessageFilter {
         return new MessageFilter(scope, id, {
-            detail: detailProps,
-        });
+            detail: {
+                responsePayload: { [fieldToCheck]: [{ exists: true }] },
+            }
+        })
     }
 }
 
