@@ -3,9 +3,8 @@ import * as path from "path";
 import { CfnOutput, Duration, RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { SnsEventSource, SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
-import { EventBus, Rule, RuleTargetInput, EventPattern } from "aws-cdk-lib/aws-events";
+import { EventBus } from "aws-cdk-lib/aws-events";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { IQueue } from "aws-cdk-lib/aws-sqs";
 import * as destinations from "aws-cdk-lib/aws-lambda-destinations";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as lambda from "aws-cdk-lib/aws-lambda";
@@ -13,8 +12,8 @@ import * as logs from "aws-cdk-lib/aws-logs";
 import * as sfn from "aws-cdk-lib/aws-stepfunctions";
 import * as sns from "aws-cdk-lib/aws-sns";
 import * as sqs from "aws-cdk-lib/aws-sqs";
-import * as targets from "aws-cdk-lib/aws-events-targets";
 import * as tasks from "aws-cdk-lib/aws-stepfunctions-tasks";
+import {ContentFilter, MessageFilter, MessageContentFilter} from "./integration-patterns";
 
 
 /**
@@ -273,72 +272,5 @@ export class LoanBrokerPubSubStack extends Stack {
 
             onSuccess: new destinations.EventBridgeDestination(config.destinationEventBus),
         });
-    }
-}
-
-
-interface ContentFilterProps {
-    readonly jsonPath: string;
-}
-
-class ContentFilter extends Construct {
-    public readonly ruleTargetInput: RuleTargetInput;
-
-    constructor(scope: Construct, id: string, props: ContentFilterProps) {
-        super(scope, id);
-
-        this.ruleTargetInput = RuleTargetInput.fromEventPath(props.jsonPath);
-    }
-
-    static createPayloadFilter(scope: Construct, id: string): ContentFilter {
-        return new ContentFilter(scope, id, {
-            jsonPath: "$.detail.responsePayload",
-        });
-    }
-}
-
-
-interface MessageFilterProps extends EventPattern {}
-
-class MessageFilter extends Construct {
-    public readonly eventPattern: EventPattern;
-
-    constructor(scope: Construct, id: string, props: MessageFilterProps) {
-        super(scope, id);
-
-        this.eventPattern = props;
-    }
-
-    static fieldExists(scope: Construct, id: string, fieldToCheck: string): MessageFilter {
-        return new MessageFilter(scope, id, {
-            detail: {
-                responsePayload: { [fieldToCheck]: [{ exists: true }] },
-            }
-        })
-    }
-}
-
-
-interface MessageContentFilterProps {
-    sourceEventBus: EventBus;
-    targetQueue: IQueue;
-    messageFilter: MessageFilter;
-    contentFilter: ContentFilter;
-}
-
-class MessageContentFilter extends Construct {
-    constructor(scope: Construct, id: string, props: MessageContentFilterProps) {
-        super(scope, id);
-
-        const messageFilterRule = new Rule(scope, id + "Rule", {
-            eventBus: props.sourceEventBus,
-            ruleName: id + "Rule",
-            eventPattern: props.messageFilter.eventPattern,
-        });
-
-        var queueMessageProps = props.contentFilter.ruleTargetInput ? {
-            message: props.contentFilter.ruleTargetInput,
-        } : {};
-        messageFilterRule.addTarget(new targets.SqsQueue(props.targetQueue, queueMessageProps));
     }
 }
