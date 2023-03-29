@@ -47,7 +47,7 @@ export class LoanBrokerPubSubStack extends Stack {
 
         // Set up credit bureau lambda
         const creditBureauLambda = new lambda.Function(this, "CreditBureauLambda", {
-            runtime: lambda.Runtime.NODEJS_14_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             handler: "app.handler",
             code: lambda.Code.fromAsset("credit-bureau"),
             functionName: "CreditBureauLambda-PubSub",
@@ -146,7 +146,7 @@ export class LoanBrokerPubSubStack extends Stack {
 
         // Set up quote aggregator lambda
         const quoteAggregatorLambda = new NodejsFunction(this, "QuoteAggregatorLambda", {
-            runtime: lambda.Runtime.NODEJS_14_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             handler: "handler",
             entry: path.join(__dirname, "../quote-aggregator/app.js"),
             functionName: "QuoteAggregator",
@@ -179,7 +179,7 @@ export class LoanBrokerPubSubStack extends Stack {
         });
 
         const getMortgageQuotesLambda = new NodejsFunction(this, "GetMortgageQuotesLambda", {
-            runtime: lambda.Runtime.NODEJS_14_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             handler: "handler",
             entry: path.join(__dirname, "../quote-requester/app.js"),
             functionName: "QuoteRequester",
@@ -264,7 +264,7 @@ export class LoanBrokerPubSubStack extends Stack {
         destinationEventBus: EventBus;
     }) {
         return new lambda.Function(this, config.bankName, {
-            runtime: lambda.Runtime.NODEJS_14_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             handler: "app-sns.handler",
             code: lambda.Code.fromAsset("bank"),
             functionName: config.bankName + "-PubSub",

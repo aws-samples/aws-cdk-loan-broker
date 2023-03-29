@@ -38,7 +38,7 @@ export class LoanBrokerRecipientListStack extends Stack {
 
         // Set up credit bureau lambda
         const creditBureauLambda = new lambda.Function(this, "CreditBureauLambda", {
-            runtime: lambda.Runtime.NODEJS_14_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             handler: "app.handler",
             code: lambda.Code.fromAsset("credit-bureau"),
             functionName: "CreditBureauLambda",
@@ -173,7 +173,7 @@ export class LoanBrokerRecipientListStack extends Stack {
      */
     private _createBankFunction(name: string, env: BankFunctionEnvironment) {
         return new lambda.Function(this, name, {
-            runtime: lambda.Runtime.NODEJS_14_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             handler: "app.handler",
             code: lambda.Code.fromAsset("bank"),
             functionName: name,
