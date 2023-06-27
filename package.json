@@ -20,7 +20,7 @@
     "@types/node": "10.17.27",
     "jest": "^26.4.2",
     "ts-jest": "^26.2.0",
-    "aws-cdk": "2.70.0",
+    "aws-cdk": "2.85.0",
     "ts-node": "^9.0.0",
     "typescript": "~3.9.7",
 
@@ -29,7 +29,7 @@
     "@aws-sdk/util-dynamodb": "^3.301.0"
   },
   "dependencies": {
-    "aws-cdk-lib": "2.70.0",
+    "aws-cdk-lib": "2.85.0",
     "constructs": "^10.0.0",
     "source-map-support": "^0.5.16"
   }
