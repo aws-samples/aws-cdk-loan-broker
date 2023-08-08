@@ -230,7 +230,7 @@ export class LoanBrokerPubSubStack extends Stack {
         const loanBrokerLogGroup = new logs.LogGroup(this, "LoanBrokerLogGroup");
 
         const loanBroker = new sfn.StateMachine(this, "LoanBroker", {
-            definition: loanBrokerDefinition,
+            definitionBody: sfn.DefinitionBody.fromChainable(loanBrokerDefinition),
 
             stateMachineType: sfn.StateMachineType.STANDARD,
             timeout: Duration.minutes(5),
